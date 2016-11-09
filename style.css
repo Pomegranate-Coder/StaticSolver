@@ -1,0 +1,15 @@
+div {
+	border: 2px black solid;
+	margin: 20px;
+	padding: 10px;
+}
+
+li {
+	border: 2px black solid;
+	margin: 20px;
+	padding: 10px;
+}
+
+ul {
+	list-style: none;
+}
