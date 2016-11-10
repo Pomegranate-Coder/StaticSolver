@@ -6,23 +6,52 @@
 
 <body>
 
-	<div id="diagramArea">
+	<div id="diagram-area">
 		<p>diagram</p>
 	</div>
 
-	<div id="forceDisplay">
-		<ul id="forceUL">
-			<li>force 1</li>
-			<li>force 2</li>
-			<li>force 3</li>
+	<div id="force-display">
+		<ul>
+			<li id="force-input-container">Force 1 
+				<input type="number" class="force-magnitude-input force-input">
+				<input type="text" class="force-mag-unit-input force-input" name=""> 
+				<input type="text" class="force-direction-input force-input" name="">
+				at
+				<input type="text" class="force-direction-number-input force-input" name=""> 
+				<input type="text" class="force-direction-unit-input force-input" name="">
+				from the
+				<input type="text" class="angle-relative-input force-input" name="">
+			</li>
+			<li id="force-input-container">Force 2
+				<input type="number" class="force-magnitude-input force-input">
+				<input type="text" class="force-mag-unit-input force-input" name=""> 
+				<input type="text" class="force-direction-input force-input" name="">
+				at
+				<input type="text" class="force-direction-number-input force-input" name=""> 
+				<input type="text" class="force-direction-unit-input force-input" name="">
+				from the
+				<input type="text" class="angle-relative-input force-input" name="">
+			</li>
+			<li id="force-input-container">Force 3
+				<input type="number" class="force-magnitude-input force-input">
+				<input type="text" class="force-mag-unit-input force-input" name=""> 
+				<input type="text" class="force-direction-input force-input" name="">
+				at
+				<input type="text" class="force-direction-number-input force-input" name=""> 
+				<input type="text" class="force-direction-unit-input force-input" name="">
+				from the
+				<input type="text" class="angle-relative-input force-input" name="">
+			</li> 
 		</ul>
 
-		<div id="massInput">
-			<p>mass input</p>
+		<div class="mass-input-wrapper">
+			<label class="mass-input-label">The particle weighs 
+				<input type="number" class="mass-input force-input" name="">
+			</label>
 		</div>
 	</div>
 
-	<div id="componentDisplay">
+	<div id="component-display">
 		<p>components</p>
 	</div>
 

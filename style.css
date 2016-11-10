@@ -1,15 +1,47 @@
 div {
-	border: 2px black solid;
+	border: 2px solid grey;
+	border-radius: 5px;
 	margin: 20px;
-	padding: 10px;
-}
-
-li {
-	border: 2px black solid;
-	margin: 20px;
-	padding: 10px;
 }
 
 ul {
 	list-style: none;
+	padding: 0;
+}
+
+/*Everything for the force input*/
+/*First the container and general formatting*/
+
+#force-input-container {
+	border: 2px solid grey;
+	border-radius: 5px;
+	margin: 10px 20px;
+	padding: 8px 10px;
+}
+
+
+.force-input {
+	width: 40px;
+	margin: 5px;
+	border-radius: 5px;
+}
+
+/*Unique to each input*/
+
+.force-direction-input {
+	width: 110px;
+}
+
+.angle-relative-input {
+	width: 70px;
+}
+
+/*Mass input*/
+
+.mass-input-wrapper {
+	white-space: nowrap;
+}
+
+.mass-input-label {
+	margin: 20px 10px;
 }
