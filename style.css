@@ -45,3 +45,13 @@ ul {
 .mass-input-label {
 	margin: 20px 10px;
 }
+
+/*Component display styling*/
+
+.components-display-individual {
+	margin: 10px 20px;
+}
+
+.unit-vector {
+	font-weight: bold;
+}
