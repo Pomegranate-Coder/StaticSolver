@@ -12,38 +12,21 @@
 	</div>
 
 	<div id="force-display">
-		<ul>
-			<li id="force-input-container">Force 1 
-				<input type="number" class="force-magnitude-input force-input">
-				<input type="text" class="force-mag-unit-input force-input" name=""> 
-				<input type="text" class="force-direction-input force-input" name="">
-				at
-				<input type="text" class="force-direction-number-input force-input" name=""> 
-				<input type="text" class="force-direction-unit-input force-input" name="">
-				from the
-				<input type="text" class="angle-relative-input force-input" name="">
-			</li>
-			<li id="force-input-container">Force 2
-				<input type="number" class="force-magnitude-input force-input">
-				<input type="text" class="force-mag-unit-input force-input" name=""> 
-				<input type="text" class="force-direction-input force-input" name="">
-				at
-				<input type="text" class="force-direction-number-input force-input" name=""> 
-				<input type="text" class="force-direction-unit-input force-input" name="">
-				from the
-				<input type="text" class="angle-relative-input force-input" name="">
-			</li>
-			<li id="force-input-container">Force 3
-				<input type="number" class="force-magnitude-input force-input">
-				<input type="text" class="force-mag-unit-input force-input" name=""> 
-				<input type="text" class="force-direction-input force-input" name="">
-				at
-				<input type="text" class="force-direction-number-input force-input" name=""> 
-				<input type="text" class="force-direction-unit-input force-input" name="">
-				from the
-				<input type="text" class="angle-relative-input force-input" name="">
-			</li> 
+		<ul id="force-display-list">
+			
 		</ul>
+
+		<div id="force-input-container">New Force
+				<input type="number" id="force-magnitude-input" class="force-input">
+				<input type="text" id="force-mag-unit-input" class="force-input" name=""> 
+				<input type="text" id="force-direction-input" class="force-input" name="">
+				at
+				<input type="text" id="force-direction-number-input" class="force-input" name=""> 
+				<input type="text" id="force-direction-unit-input" class="force-input" name="">
+				from the
+				<input type="text" id="angle-relative-input" class="force-input" name="">
+				<button id="add-force-button" onclick="handlers.addForce()">Add Force</button>
+		</div> 
 
 		<div class="mass-input-wrapper">
 			<label class="mass-input-label">The particle weighs 

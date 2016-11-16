@@ -84,10 +84,54 @@ var forceList = {
 
 	addForce: function(forceMagnitudeInput, forceMagUnitInput, forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput) {
 		this.forces.push({
-			forceMagnitudeN: this.convertForceToNewtons(forceMagnitudeInput, forceMagUnitInput),
-			degreesClockwiseFromRight: this.getDegreesClockwiseFromRight(forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput),
-			vectors: this.getVectors (forceMagnitudeInput, forceMagUnitInput, forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput)
+			"forceMagnitudeN": this.convertForceToNewtons(forceMagnitudeInput, forceMagUnitInput),
+			"forceDirection": forceDirectionInput,
+			"angleInDegrees": this.convertAngleToDegrees(forceDirectionNumberInput, forceDirectionUnitInput),
+			"angleRelative": angleRelativeInput,
+			"vectors": this.getVectors (forceMagnitudeInput, forceMagUnitInput, forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput),
+			"degreesClockwiseFromRight": this.getDegreesClockwiseFromRight(forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput)
 		});
 	},
 
+}
+
+//DOM manipulation
+
+var handlers = {
+
+	addForce: function() {
+		var forceMagnitudeInput = document.getElementById("force-magnitude-input").value;
+		var forceMagUnitInput = document.getElementById("force-mag-unit-input").value;
+		var forceDirectionInput = document.getElementById("force-direction-input").value;
+		var forceDirectionNumberInput = document.getElementById("force-direction-number-input").value;
+		var forceDirectionUnitInput = document.getElementById("force-direction-unit-input").value;
+		var angleRelativeInput = document.getElementById("angle-relative-input").value;
+
+		forceList.addForce(forceMagnitudeInput, forceMagUnitInput, forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput);
+
+		view.displayForces();
+
+
+	}
+}
+
+var view = {
+	displayForces: function() {
+		var forceDisplayList = document.querySelector("#force-display-list");
+		forceDisplayList.innerHTML = "";
+
+		for (var i = 0; i <= forceList.forces.length; i++) {
+			
+			var forceMagnitudeN = forceList.forces[i]["forceMagnitudeN"];
+			var forceDirection = forceList.forces[i]["forceDirection"];
+			var angleInDegrees = forceList.forces[i]["angleInDegrees"];
+			var angleRelative = forceList.forces[i]["angleRelative"];
+			var forceDisplayText = "Force " + i + " has magnitude " + forceMagnitudeN.toFixed(1) + " and acts " + forceDirection + " at " + angleInDegrees.toFixed(1)	+ " degrees from the " + angleRelative;
+
+			var forceToDisplay = document.createElement("li");
+			forceToDisplay.className = "displayed-force";
+			forceToDisplay.textContent = forceDisplayText;
+			forceDisplayList.appendChild(forceToDisplay);
+		}
+	}
 }
