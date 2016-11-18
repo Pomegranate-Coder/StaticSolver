@@ -54,31 +54,39 @@ var forceList = {
 		}
 	},
 
-	getVectors: function(forceMagnitudeInput, forceMagUnitInput, forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput) {
+	getComponents: function(forceMagnitudeInput, forceMagUnitInput, forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput) {
 		
 		var forceInNewtons = this.convertForceToNewtons(forceMagnitudeInput, forceMagUnitInput);
 		var angleInDegrees = this.convertAngleToDegrees(forceDirectionNumberInput, forceDirectionUnitInput);
-		var angleInRads = angleInDegrees / 180 * Math.PI;
+		var angleInRads;
+
+		if (forceDirectionUnitInput === "rad") { 
+			angleInRads = forceDirectionNumberInput;
+		}
+		else { 
+			angleInRads = angleInDegrees / 180 * Math.PI;
+		}
+
 		var directionAndRelative = forceDirectionInput + angleRelativeInput;
 
 		switch (directionAndRelative) {
 			case "UpRightHorizontal":
-				return {i: Math.cos(angleInRads) * forceInNewtons, j: Math.sin(angleInRads) * forceInNewtons};
+				return {"i": Math.cos(angleInRads) * forceInNewtons, "j": Math.sin(angleInRads) * forceInNewtons};
 			case "UpRightVertical":
-				return {i: Math.sin(angleInRads) * forceInNewtons, j: Math.cos(angleInRads) * forceInNewtons};
+				return {"i": Math.sin(angleInRads) * forceInNewtons, "j": Math.cos(angleInRads) * forceInNewtons};
 			case "UpLeftVertical":
-				return {i: Math.sin(angleInRads) * forceInNewtons * -1, j: Math.cos(angleInRads) * forceInNewtons};
+				return {"i": Math.sin(angleInRads) * forceInNewtons * -1, "j": Math.cos(angleInRads) * forceInNewtons};
 			case "UpLeftHorizontal":
-				return {i: Math.cos(angleInRads) * forceInNewtons * -1, j: Math.sin(angleInRads) * forceInNewtons};
+				return {"i": Math.cos(angleInRads) * forceInNewtons * -1, "j": Math.sin(angleInRads) * forceInNewtons};
 			case "DownLeftHorizontal":
-				return {i: Math.cos(angleInRads) * forceInNewtons * -1, j: Math.sin(angleInRads) * forceInNewtons * -1};
+				return {"i": Math.cos(angleInRads) * forceInNewtons * -1, "j": Math.sin(angleInRads) * forceInNewtons * -1};
 			case "DownLeftVertical":
-				return {i: Math.sin(angleInRads) * forceInNewtons * -1, j: Math.cos(angleInRads) * forceInNewtons * -1};
+				return {"i": Math.sin(angleInRads) * forceInNewtons * -1, "j": Math.cos(angleInRads) * forceInNewtons * -1};
 			case "DownRightVertical":
-				return {i: Math.sin(angleInRads) * forceInNewtons, j: Math.cos(angleInRads) * forceInNewtons * -1};
+				return {"i": Math.sin(angleInRads) * forceInNewtons, "j": Math.cos(angleInRads) * forceInNewtons * -1};
 			case "DownRightHorizontal":
-				return {i: Math.cos(angleInRads) * forceInNewtons, j: Math.sin(angleInRads) * forceInNewtons * -1};
-			default: console.log("Unrecognized input in getVectors");
+				return {"i": Math.cos(angleInRads) * forceInNewtons, "j": Math.sin(angleInRads) * forceInNewtons * -1};
+			default: console.log("Unrecognized input in getComponents");
 		}
 	},
 
@@ -88,12 +96,114 @@ var forceList = {
 			"forceDirection": forceDirectionInput,
 			"angleInDegrees": this.convertAngleToDegrees(forceDirectionNumberInput, forceDirectionUnitInput),
 			"angleRelative": angleRelativeInput,
-			"vectors": this.getVectors (forceMagnitudeInput, forceMagUnitInput, forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput),
+			"components": this.getComponents (forceMagnitudeInput, forceMagUnitInput, forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput),
 			"degreesClockwiseFromRight": this.getDegreesClockwiseFromRight(forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput)
 		});
 	},
 
+	calculateNetComponents: function(forces) {
+		var netI = 0; 
+		var netJ = 0;
+
+		for (var x = forces.length - 1; x >= 0; x--) {
+			netI += (forces[x]["components"])["i"];
+			netJ += (forces[x]["components"])["j"];
+		}
+
+		return {"i": netI, "j": netJ};
+	},
+
+	calculateOppositeComponents: function(components) {
+		return {
+			"i": components["i"] * -1, 
+			"j": components["j"] * -1
+		}
+	},
+
+	calculateForceFromComponents: function(components) {
+		var i = components["i"];
+		var j = components["j"];
+
+		var forceMagnitudeN = Math.sqrt((i * i) + (j * j));
+		var angleFromHorizontalRad = Math.acos( Math.abs(i) / forceMagnitudeN);
+		var angleFromHorizontalDeg = this.convertAngleToDegrees(angleFromHorizontalRad, "rad");
+		var degreesClockwiseFromRight;
+		var forceDirection;
+
+		//UpRight
+
+		if (i > 0 && j > 0) {
+			forceDirection = "UpRight";
+			degreesClockwiseFromRight = this.getDegreesClockwiseFromRight(forceDirection, angleFromHorizontalRad, "rad", "Horizontal");
+		}
+
+		//StraightUp
+
+		if (i > 0 && j === 0) {
+
+			degreesClockwiseFromRight = 90;
+
+		}
+
+		//UpLeft
+
+		if (i > 0 && j < 0) {
+			forceDirection = "UpLeft";
+			degreesClockwiseFromRight = this.getDegreesClockwiseFromRight(forceDirection, angleFromHorizontalRad, "rad", "Horizontal");
+
+		}
+
+		//StraightLeft
+
+		if (i === 0 && j < 0) {
+
+			degreesClockwiseFromRight = 180;
+		}
+
+		//DownLeft
+
+		if (i < 0 && j < 0) {
+			forceDirection = "DownLeft";
+			degreesClockwiseFromRight = this.getDegreesClockwiseFromRight(forceDirection, angleFromHorizontalRad, "rad", "Horizontal");
+
+		}
+
+		//StraightDown
+
+		if (i < 0 && j === 0) {
+
+			degreesClockwiseFromRight = 270;
+
+		}
+
+		//DownRight
+
+		if (i < 0 && j > 0) {
+			forceDirection = "DownRight";
+			degreesClockwiseFromRight = this.getDegreesClockwiseFromRight(forceDirection, angleFromHorizontalRad, "rad", "Horizontal");
+		}
+		
+		//StraightRight
+
+		if (i === 0 && j > 0) {
+
+			degreesClockwiseFromRight = 0;
+
+		}
+
+		return {
+			"forceMagnitudeN": forceMagnitudeN,
+			"forceDirection": forceDirection,
+			"angleInDegrees": angleFromHorizontalDeg,
+			"angleRelative": "Horizontal",
+			"components": components,
+			"degreesClockwiseFromRight": degreesClockwiseFromRight
+		}
+
+	},
+	
 }
+
 
 //DOM manipulation
 
@@ -116,22 +226,90 @@ var handlers = {
 }
 
 var view = {
+
+	prettifyDirection: function(forceDirectionInput) {
+		switch(forceDirectionInput) {
+			case "UpRight":
+				return "up and to the right";
+			case "UpLeft":
+				return "up and to the left";
+			case "DownLeft":
+				return "down and to the left";
+			case "DownRight":
+				return "down and to the right";
+		}
+
+	},
+
+	prettifyAngleUnit: function(angleUnit) {
+		switch(angleUnit) {
+			case "deg": 
+				return "degrees";
+			case "rad": 
+				return "radians";
+			case "grad": 
+				return "gradians";
+		}
+	},
+
+	prettifyForceUnit: function(forceUnit) {
+		switch(forceUnit) {
+			case"N": 
+				return "newtons";
+			case "lbf":
+				return "units of pound-force";
+			case "dyn":
+				return "dynes";
+			case "pdl":
+				return "poundals";
+		}
+	},
+
+	setDisplayFigures: function(forceMagnitudeN, requiredForceUnit, angleInDegrees, requiredAngleUnit) {
+		
+		var forceToDisplay = forceMagnitudeN / (forceList.forceConversions[requiredForceUnit]);
+		var angleToDisplay = angleInDegrees / (forceList.angleConversions[requiredAngleUnit]);
+
+		return {"angleToDisplay": angleToDisplay, "forceToDisplay": forceToDisplay};
+	},
+
 	displayForces: function() {
 		var forceDisplayList = document.querySelector("#force-display-list");
 		forceDisplayList.innerHTML = "";
+		var componentDisplayList = document.querySelector("#component-display-list");
+		componentDisplayList.innerHTML = "";
 
-		for (var i = 0; i <= forceList.forces.length; i++) {
-			
-			var forceMagnitudeN = forceList.forces[i]["forceMagnitudeN"];
-			var forceDirection = forceList.forces[i]["forceDirection"];
-			var angleInDegrees = forceList.forces[i]["angleInDegrees"];
-			var angleRelative = forceList.forces[i]["angleRelative"];
-			var forceDisplayText = "Force " + i + " has magnitude " + forceMagnitudeN.toFixed(1) + " and acts " + forceDirection + " at " + angleInDegrees.toFixed(1)	+ " degrees from the " + angleRelative;
+		var requiredForceUnit = document.getElementById("required-force-unit").value;
+		var requiredAngleUnit = document.getElementById("required-angle-unit").value;
+		
+		for (var x = 0; x < forceList.forces.length; x++) {
+			//Display forces themselves
+			var forceMagnitudeN = forceList.forces[x]["forceMagnitudeN"];
+			var angleInDegrees = forceList.forces[x]["angleInDegrees"];
+			var modifiedForceAngle = this.setDisplayFigures(forceMagnitudeN, requiredForceUnit, angleInDegrees, requiredAngleUnit);
+			var forceToDisplay = modifiedForceAngle["forceToDisplay"];
+			var angleToDisplay = modifiedForceAngle["angleToDisplay"];
+
+			var forceDirection = view.prettifyDirection(forceList.forces[x]["forceDirection"]);
+			var angleRelative = forceList.forces[x]["angleRelative"];
+			var forceDisplayText = "Force " + (x + 1) + " has magnitude " + forceToDisplay.toFixed(1) + " " + this.prettifyForceUnit(requiredForceUnit) + " and acts " + forceDirection + " at " + angleToDisplay.toFixed(1) + " " + this.prettifyAngleUnit(requiredAngleUnit) + " from the " + angleRelative.toLowerCase();
 
 			var forceToDisplay = document.createElement("li");
 			forceToDisplay.className = "displayed-force";
 			forceToDisplay.textContent = forceDisplayText;
 			forceDisplayList.appendChild(forceToDisplay);
+
+			//Display components
+
+			var componentI = (forceList.forces[x]["components"])["i"];
+			var componentJ = (forceList.forces[x]["components"])["j"];
+			var componentsToDisplay = document.createElement("li");
+			componentsToDisplay.className = "components-display-individual";
+			componentsToDisplay.innerHTML = "Force " + (x + 1) + " has components <span class='component-numbers'>" + componentI.toFixed(1) + "</span> <span class='unit-vector'>i</span> and <span class='component-numbers'>" + componentJ.toFixed(1) + "</span> <span class='unit-vector'>j</span>";
+			componentDisplayList.appendChild(componentsToDisplay);
+
 		}
+
+		console.log(forceList.calculateForceFromComponents(forceList.calculateOppositeComponents((forceList.calculateNetComponents(forceList.forces)))));
 	}
 }
