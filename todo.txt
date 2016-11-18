@@ -1,0 +1,25 @@
+
+JS
+
+-Add support for straight up/down/left/right to input [DONE]. Ditto display force. 
+  -Instead of adding cases to getDegreesClockwiseFromRight, simply process these from input so that they have a quadrant. For example, for straight up, store it as  UpRight at 0 degrees from the vertical. That way, no alteration is required to the force object to account for these four cases. 
+  -Process it at the point of display so that if either component = 0
+  -deal with floating points. If something is <0.01 deg away from vertical, it should be displayed as vertical. Ensure this applies to displaying the opposing force, as well. 
+    -Setting a rounding limit based on degrees will require consideration of displaying angles in radians, since this is 0.0001745329. Hence, angles in radians < 0.1 rad should be displayed based on significant figures, not decimal points as is currently done.
+      -Thus, a function for pre-processing the angle output would be a good idea, rather than just sticking toFixed in when defining the output. The same thing will need to be done for force display. Maybe Google for "significant figures js" as this has undoubtedly been solved by someone on StackOverflow.
+
+-Display opposing force
+-Calculate acceleration
+  -Display acceleration
+
+HTML
+
+-Limit entries allowed in New Force, mass, and output units
+
+CSS / appearance
+-Have components box hidden until there's actually something to show.
+-Figure out how the final product should look in terms of aesthetics. Pick a font, a colour scheme
+
+Misc
+-Add an about/contact bit
+-Add a disclaimer about not relying on this for school work

@@ -27,6 +27,23 @@ var forceList = {
 		return forceDirectionNumberInput * this.angleConversions[forceDirectionUnitInput];
 	},
 
+	giveQuadrantAndAngleToInput: function(forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput) {
+		if ((forceDirectionInput === "UpRight") || (forceDirectionInput === "UpLeft") || (forceDirectionInput === "DownLeft") || (forceDirectionInput === "DownRight")) {
+			return {"forceDirectionInput": forceDirectionInput, "forceDirectionNumberInput": forceDirectionNumberInput, "forceDirectionUnitInput": forceDirectionUnitInput, "angleRelativeInput": angleRelativeInput}
+		}
+
+		switch (forceDirectionInput) {
+			case "StraightUp":
+				return {"forceDirectionInput": "UpRight", "forceDirectionNumberInput": 0, "forceDirectionUnitInput": "deg", "angleRelativeInput": "Vertical"};
+			case "StraightLeft":
+				return {"forceDirectionInput": "UpLeft", "forceDirectionNumberInput": 0, "forceDirectionUnitInput": "deg", "angleRelativeInput": "Horizontal"};
+			case "StraightDown":
+				return {"forceDirectionInput": "DownLeft", "forceDirectionNumberInput": 0, "forceDirectionUnitInput": "deg", "angleRelativeInput": "Vertical"};
+			case "StraightRight":
+				return {"forceDirectionInput": "DownRight", "forceDirectionNumberInput": 0, "forceDirectionUnitInput": "deg", "angleRelativeInput": "Horizontal"};
+		} 
+	},
+
 	getDegreesClockwiseFromRight: function(forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput) {
 
 		var directionAndRelative = forceDirectionInput + angleRelativeInput;
@@ -91,6 +108,15 @@ var forceList = {
 	},
 
 	addForce: function(forceMagnitudeInput, forceMagUnitInput, forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput) {
+
+		var quadrantedAngles = this.giveQuadrantAndAngleToInput(forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput);
+
+		forceDirectionInput = quadrantedAngles["forceDirectionInput"];
+		forceDirectionNumberInput = quadrantedAngles["forceDirectionNumberInput"];
+		forceDirectionUnitInput = quadrantedAngles["forceDirectionUnitInput"];
+		angleRelativeInput = quadrantedAngles["angleRelativeInput"];
+
+
 		this.forces.push({
 			"forceMagnitudeN": this.convertForceToNewtons(forceMagnitudeInput, forceMagUnitInput),
 			"forceDirection": forceDirectionInput,
@@ -139,7 +165,7 @@ var forceList = {
 
 		//StraightUp
 
-		if (i > 0 && j === 0) {
+		if (i === 0 && j > 0) {
 
 			degreesClockwiseFromRight = 90;
 
@@ -147,7 +173,7 @@ var forceList = {
 
 		//UpLeft
 
-		if (i > 0 && j < 0) {
+		if (i < 0 && j > 0) {
 			forceDirection = "UpLeft";
 			degreesClockwiseFromRight = this.getDegreesClockwiseFromRight(forceDirection, angleFromHorizontalRad, "rad", "Horizontal");
 
@@ -155,7 +181,7 @@ var forceList = {
 
 		//StraightLeft
 
-		if (i === 0 && j < 0) {
+		if (i < 0 && j === 0) {
 
 			degreesClockwiseFromRight = 180;
 		}
@@ -170,7 +196,7 @@ var forceList = {
 
 		//StraightDown
 
-		if (i < 0 && j === 0) {
+		if (i === 0 && j < 0) {
 
 			degreesClockwiseFromRight = 270;
 
@@ -178,14 +204,14 @@ var forceList = {
 
 		//DownRight
 
-		if (i < 0 && j > 0) {
+		if (i > 0 && j < 0) {
 			forceDirection = "DownRight";
 			degreesClockwiseFromRight = this.getDegreesClockwiseFromRight(forceDirection, angleFromHorizontalRad, "rad", "Horizontal");
 		}
 		
 		//StraightRight
 
-		if (i === 0 && j > 0) {
+		if (i > 0 && j === 0) {
 
 			degreesClockwiseFromRight = 0;
 
@@ -227,16 +253,33 @@ var handlers = {
 
 var view = {
 
-	prettifyDirection: function(forceDirectionInput) {
-		switch(forceDirectionInput) {
-			case "UpRight":
-				return "up and to the right";
-			case "UpLeft":
-				return "up and to the left";
-			case "DownLeft":
-				return "down and to the left";
-			case "DownRight":
-				return "down and to the right";
+	prettifyDirection: function(forceDirectionInput, components) {
+
+		if (components["i"] === 0) {
+			if (components["j"] < 0) {
+				return "straight down";
+			}
+			else {
+				return "straight up";
+			}
+		} else if (components["j"] === 0 ) {
+			if (components["i"] < 0) {
+				return "straight to the left";
+			} else {
+				return "straight to the right";
+			}
+		} else {
+
+			switch(forceDirectionInput) {
+				case "UpRight":
+					return "up and to the right";
+				case "UpLeft":
+					return "up and to the left";
+				case "DownLeft":
+					return "down and to the left";
+				case "DownRight":
+					return "down and to the right";
+			}
 		}
 
 	},
@@ -265,12 +308,26 @@ var view = {
 		}
 	},
 
-	setDisplayFigures: function(forceMagnitudeN, requiredForceUnit, angleInDegrees, requiredAngleUnit) {
+	setForceFigures: function(forceMagnitudeN, requiredForceUnit)  {
 		
 		var forceToDisplay = forceMagnitudeN / (forceList.forceConversions[requiredForceUnit]);
-		var angleToDisplay = angleInDegrees / (forceList.angleConversions[requiredAngleUnit]);
+		return forceToDisplay;
+	},
 
-		return {"angleToDisplay": angleToDisplay, "forceToDisplay": forceToDisplay};
+	setAngleFigures: function(angleInDegrees, requiredAngleUnit) {
+		var angleToDisplay = angleInDegrees / (forceList.angleConversions[requiredAngleUnit]);
+		return angleToDisplay;
+	},
+
+	generateAngleDescription: function(angleInDegrees, requiredAngleUnit, angleRelative, forceDirection, components) {
+
+		var angleToDisplay = this.setAngleFigures(angleInDegrees, requiredAngleUnit);
+		var prettifiedDirection = this.prettifyDirection(forceDirection, components);
+
+		if (prettifiedDirection === "straight to the right" || prettifiedDirection === "straight up" || prettifiedDirection === "straight to the left" || prettifiedDirection === "straight down") {
+			return "";
+		} else {		
+			return " at " + angleToDisplay.toFixed(1) + " " + this.prettifyAngleUnit(requiredAngleUnit) + " from the " + angleRelative.toLowerCase();}
 	},
 
 	displayForces: function() {
@@ -286,13 +343,16 @@ var view = {
 			//Display forces themselves
 			var forceMagnitudeN = forceList.forces[x]["forceMagnitudeN"];
 			var angleInDegrees = forceList.forces[x]["angleInDegrees"];
-			var modifiedForceAngle = this.setDisplayFigures(forceMagnitudeN, requiredForceUnit, angleInDegrees, requiredAngleUnit);
-			var forceToDisplay = modifiedForceAngle["forceToDisplay"];
-			var angleToDisplay = modifiedForceAngle["angleToDisplay"];
-
-			var forceDirection = view.prettifyDirection(forceList.forces[x]["forceDirection"]);
 			var angleRelative = forceList.forces[x]["angleRelative"];
-			var forceDisplayText = "Force " + (x + 1) + " has magnitude " + forceToDisplay.toFixed(1) + " " + this.prettifyForceUnit(requiredForceUnit) + " and acts " + forceDirection + " at " + angleToDisplay.toFixed(1) + " " + this.prettifyAngleUnit(requiredAngleUnit) + " from the " + angleRelative.toLowerCase();
+			var forceDirection = forceList.forces[x]["forceDirection"];
+			var components = forceList.forces[x]["components"];
+			var forceDirectionToDisplay = this.prettifyDirection(forceDirection, components);
+			var forceToDisplay = this.setForceFigures(forceList.forces[x]["forceMagnitudeN"], requiredForceUnit);
+			console.log(forceDirection);
+			
+			var angleDescription = this.generateAngleDescription(angleInDegrees, requiredAngleUnit, angleRelative, forceDirection, components);
+			
+			var forceDisplayText = "Force " + (x + 1) + " has magnitude " + forceToDisplay.toFixed(1) + " " + this.prettifyForceUnit(requiredForceUnit) + " and acts " + forceDirectionToDisplay + angleDescription;
 
 			var forceToDisplay = document.createElement("li");
 			forceToDisplay.className = "displayed-force";
@@ -301,8 +361,8 @@ var view = {
 
 			//Display components
 
-			var componentI = (forceList.forces[x]["components"])["i"];
-			var componentJ = (forceList.forces[x]["components"])["j"];
+			var componentI = components["i"];
+			var componentJ = components["j"];
 			var componentsToDisplay = document.createElement("li");
 			componentsToDisplay.className = "components-display-individual";
 			componentsToDisplay.innerHTML = "Force " + (x + 1) + " has components <span class='component-numbers'>" + componentI.toFixed(1) + "</span> <span class='unit-vector'>i</span> and <span class='component-numbers'>" + componentJ.toFixed(1) + "</span> <span class='unit-vector'>j</span>";
