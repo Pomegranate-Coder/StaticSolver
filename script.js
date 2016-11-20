@@ -230,6 +230,22 @@ var forceList = {
 	
 }
 
+var acceleration = {
+
+	massConversions: {
+
+	},
+
+	distanceConversions: {
+
+	},
+
+	timeConversions: {
+		
+	}
+
+}
+
 
 //DOM manipulation
 
@@ -245,7 +261,7 @@ var handlers = {
 
 		forceList.addForce(forceMagnitudeInput, forceMagUnitInput, forceDirectionInput, forceDirectionNumberInput, forceDirectionUnitInput, angleRelativeInput);
 
-		view.displayForces();
+		view.displayEverything();
 
 
 	}
@@ -324,43 +340,73 @@ var view = {
 		var angleToDisplay = this.setAngleFigures(angleInDegrees, requiredAngleUnit);
 		var prettifiedDirection = this.prettifyDirection(forceDirection, components);
 
+		//using prettifiedDirection because it's already deconverting vertical/horizontal 
 		if (prettifiedDirection === "straight to the right" || prettifiedDirection === "straight up" || prettifiedDirection === "straight to the left" || prettifiedDirection === "straight down") {
 			return "";
 		} else {		
 			return " at " + angleToDisplay.toFixed(1) + " " + this.prettifyAngleUnit(requiredAngleUnit) + " from the " + angleRelative.toLowerCase();}
 	},
 
-	displayForces: function() {
-		var forceDisplayList = document.querySelector("#force-display-list");
-		forceDisplayList.innerHTML = "";
-		var componentDisplayList = document.querySelector("#component-display-list");
-		componentDisplayList.innerHTML = "";
+	generateForceDisplayText: function(forceToTextify, forceName) {
+			var requiredForceUnit = document.getElementById("required-force-unit").value;
+			var requiredAngleUnit = document.getElementById("required-angle-unit").value;
 
-		var requiredForceUnit = document.getElementById("required-force-unit").value;
-		var requiredAngleUnit = document.getElementById("required-angle-unit").value;
-		
-		for (var x = 0; x < forceList.forces.length; x++) {
-			//Display forces themselves
-			var forceMagnitudeN = forceList.forces[x]["forceMagnitudeN"];
-			var angleInDegrees = forceList.forces[x]["angleInDegrees"];
-			var angleRelative = forceList.forces[x]["angleRelative"];
-			var forceDirection = forceList.forces[x]["forceDirection"];
-			var components = forceList.forces[x]["components"];
+			var forceMagnitudeN = forceToTextify["forceMagnitudeN"];
+			var angleInDegrees = forceToTextify["angleInDegrees"];
+			var angleRelative = forceToTextify["angleRelative"];
+			var forceDirection = forceToTextify["forceDirection"];
+			var components = forceToTextify["components"];
 			var forceDirectionToDisplay = this.prettifyDirection(forceDirection, components);
-			var forceToDisplay = this.setForceFigures(forceList.forces[x]["forceMagnitudeN"], requiredForceUnit);
-			console.log(forceDirection);
+			var forceToDisplay = this.setForceFigures(forceMagnitudeN, requiredForceUnit);
 			
 			var angleDescription = this.generateAngleDescription(angleInDegrees, requiredAngleUnit, angleRelative, forceDirection, components);
 			
-			var forceDisplayText = "Force " + (x + 1) + " has magnitude " + forceToDisplay.toFixed(1) + " " + this.prettifyForceUnit(requiredForceUnit) + " and acts " + forceDirectionToDisplay + angleDescription;
+			var forceDisplayText = forceName + " has magnitude " + forceToDisplay.toFixed(1) + " " + this.prettifyForceUnit(requiredForceUnit) + " and acts " + forceDirectionToDisplay + angleDescription;
+
+			return forceDisplayText;
+
+	},
+
+		displayOpposite: function() {
+		var oppositeForce = forceList.calculateForceFromComponents(forceList.calculateOppositeComponents((forceList.calculateNetComponents(forceList.forces))));
+		var forceDisplayText = this.generateForceDisplayText(oppositeForce, "The force required to put the partice in equilibrium");
+
+		var oppositeDisplayPlace = document.getElementById("opposite-display-place");
+		oppositeDisplayPlace.innerHTML = "";
+		var forceToDisplay = document.createElement("p");
+		forceToDisplay.className = "opposing-force";
+		forceToDisplay.textContent = forceDisplayText;
+		oppositeDisplayPlace.appendChild(forceToDisplay);
+
+
+	},
+
+	displayForces: function() {
+		var forceDisplayList = document.querySelector("#force-display-list");
+		forceDisplayList.innerHTML = "";
+		
+		for (var x = 0; x < forceList.forces.length; x++) {
+			//Display forces themselves
+			var forceName = "Force " + (x+1);
+			var forceDisplayText = this.generateForceDisplayText(forceList.forces[x], forceName);
 
 			var forceToDisplay = document.createElement("li");
 			forceToDisplay.className = "displayed-force";
 			forceToDisplay.textContent = forceDisplayText;
 			forceDisplayList.appendChild(forceToDisplay);
 
-			//Display components
+		}
 
+		
+	},
+
+	displayComponents: function() {
+
+		var componentDisplayList = document.querySelector("#component-display-list");
+		componentDisplayList.innerHTML = "";
+
+		for (var x = 0; x < forceList.forces.length; x++) {
+			var components = forceList.forces[x]["components"];
 			var componentI = components["i"];
 			var componentJ = components["j"];
 			var componentsToDisplay = document.createElement("li");
@@ -370,6 +416,12 @@ var view = {
 
 		}
 
-		console.log(forceList.calculateForceFromComponents(forceList.calculateOppositeComponents((forceList.calculateNetComponents(forceList.forces)))));
+	},
+
+	displayEverything: function() {
+		this.displayForces();
+		this.displayOpposite();
+		this.displayComponents();
 	}
+
 }
