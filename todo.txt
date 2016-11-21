@@ -1,20 +1,22 @@
 
 JS
 
--Add support for straight up/down/left/right to input [DONE]. Ditto display force. 
+-Add support for straight up/down/left/right to input [DONE]. Ditto display force [DONE]. 
   -Instead of adding cases to getDegreesClockwiseFromRight, simply process these from input so that they have a quadrant. For example, for straight up, store it as  UpRight at 0 degrees from the vertical. That way, no alteration is required to the force object to account for these four cases. 
   -Process it at the point of display so that if either component = 0
-  -deal with floating points. If something is <0.01 deg away from vertical, it should be displayed as vertical. Ensure this applies to displaying the opposing force, as well. 
+  -deal with floating points. If something is <0.01 deg away from vertical, it should be displayed as vertical. Ensure this applies to displaying the opposing force, as well. [NONE ISSUE, THIS IS WHY YOU SHOULDN'T WRITE THIS STUFF WHILE ON THE BUS - you used components to define the direction to display, not angles]
     -Setting a rounding limit based on degrees will require consideration of displaying angles in radians, since this is 0.0001745329. Hence, angles in radians < 0.1 rad should be displayed based on significant figures, not decimal points as is currently done.
       -Thus, a function for pre-processing the angle output would be a good idea, rather than just sticking toFixed in when defining the output. The same thing will need to be done for force display. Maybe Google for "significant figures js" as this has undoubtedly been solved by someone on StackOverflow.
 
--Display opposing force
--Calculate acceleration
-  -Display acceleration
+-Display opposing force [DONE - with a bonus refactor of the display functions]
+
+-Calculate acceleration [DONE]
+  -Display acceleration [DONE]
 
 HTML
 
--Limit entries allowed in New Force, mass, and output units
+-Limit entries allowed in New Force, mass, and output units [DONE]
+-For acceleration, have a few standards (metres per second squared, miles per hour per second), then the option to select "something odd" which opens up independent distance and time
 
 CSS / appearance
 -Have components box hidden until there's actually something to show.

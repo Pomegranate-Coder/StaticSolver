@@ -12,32 +12,95 @@
 	</div>
 
 	<div id="force-display">
-		<ul>
-			<li>required force unit<input type="text" class="force-input" id="required-force-unit"></li>
-			<li>required angle unit<input type="text" class="force-input" id="required-angle-unit"></li>
-		</ul>
+		
 		<div id="opposite-display-place"></div>
-		<ul id="force-display-list">
-			
-		</ul>
+		<div id="acceleration-place">
+			<div class="acceleration-input-wrapper">
+			<label class="mass-input-label">The particle has mass 
+				<input type="number" class="force-input" id="mass-input-number" name="" value="10">
+				<select class="force-input" id="mass-input-unit" name="" value="kg">
+					<option value="kg" selected>kilograms</option>
+					<option value="gram">grams</option>
+					<option value="lb">pounds</option>
+					<option value="stone">stones</option>
+					<option value="ounce">ounces</option>
+				</select>
+				<p>Display acceleration in units of:
+				<select id="required-distance">
+					<option value="metres" selected>metres</option>
+					<option value="miles">miles</option>
+					<option value="kilometres">kilometres</option>
+					<option value="feet">feet</option>
+					<option value="yards">yards</option>
+				</select> per
+				<select id="required-time-one">
+					<option value="second" selected>second</option>
+					<option value="minute">minute</option>
+					<option value="hour">hour</option>
+				</select> per
+				<select id="required-time-two">
+					<option value="second" selected>second</option>
+					<option value="minute">minute</option>
+					<option value="hour">hour</option>
+				</select>
+				</p>
+				<button onclick="view.displayEverything()">Refresh</button>
+			</label>
+		</div>
+			<div id="acceleration-display-place"></div>
+		</div>		
+		
 
 		<div id="force-input-container">New Force
 				<input type="number" id="force-magnitude-input" class="force-input">
-				<input type="text" id="force-mag-unit-input" class="force-input" name=""> 
-				<input type="text" id="force-direction-input" class="force-input" name="">
+				<select id="force-mag-unit-input" class="force-input">
+					<option value="N" selected>newtons</option>
+					<option value="lbf">units of pound-force</option>
+					<option value="dyn">dynes</option>
+					<option value="pdl">poundals</option>
+				</select>
+				<select id="force-direction-input" class="force-input" name="">
+					<option value="UpRight">up and to the right</option>
+					<option value="StraightUp">straight up</option>
+					<option value="UpLeft">up and to the left</option>
+					<option value="StraightLeft">straight to the left</option>
+					<option value="DownLeft">down and to the left</option>
+					<option value="StraightDown">straight down</option>
+					<option value="DownRight">down and to the right</option>
+					<option value="StraightRight">straight to the right</option>
+				</select>
 				at
-				<input type="text" id="force-direction-number-input" class="force-input" name=""> 
-				<input type="text" id="force-direction-unit-input" class="force-input" name="">
+				<input type="text" id="force-direction-number-input" class="force-input" name="" value="30"> 
+				<select id="force-direction-unit-input" class="force-input">
+					<option value="deg" selected>degrees</option>
+					<option value="rad">radians</option>
+					<option value="grad">gradians</option>
+				</select>
 				from the
-				<input type="text" id="angle-relative-input" class="force-input" name="">
+				<select id="angle-relative-input" class="force-input">
+					<option value="Horizontal" selected>horizontal</option>
+					<option value="Vertical">vertical</option>
+				</select>
 				<button id="add-force-button" onclick="handlers.addForce()">Add Force</button>
+				<p></p>
+			Display using
+				<select class="force-input" id="required-force-unit">
+					<option value="N" selected>newtons</option>
+					<option value="lbf">units of pound-force</option>
+					<option value="dyn">dynes</option>
+					<option value="pdl">poundals</option>
+				</select>
+			and
+				<select class="force-input" id="required-angle-unit" value="deg">
+					<option value="deg" selected>degrees</option>
+					<option value="rad">radians</option>
+					<option value="grad">gradians</option>
+				</select>
+				<button onclick="view.displayEverything()">Refresh</button>
+				<ul id="force-display-list"></ul>
+		</ul>
 		</div> 
 
-		<div class="mass-input-wrapper">
-			<label class="mass-input-label">The particle has mass 
-				<input type="number" class="mass-input force-input" name="">
-			</label>
-		</div>
 	</div>
 
 	<div id="component-display">

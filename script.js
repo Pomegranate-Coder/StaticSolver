@@ -233,15 +233,42 @@ var forceList = {
 var acceleration = {
 
 	massConversions: {
-
+		"kg": 1,
+		"gram": 1000,
+		"lb": 0.45359237,
+		"stone": 6.35029,
+		"ounce": 0.0283495
 	},
 
 	distanceConversions: {
+		"metres": 1,
+		"inches": 0.0254,
+		"feet": 0.3048,
+		"yards": 0.9144,
+		"kilometres": 1000,
+		"miles": 1609.34
 
 	},
 
 	timeConversions: {
-		
+		"second": 1,
+		"minute": 60,
+		"hour": 3600,
+	},
+
+	convertMassToKg(massMag, massUnit) {
+		var massInKg = massMag * this.massConversions[massUnit];
+		return massInKg;
+	},
+
+	calculateAccelerationMetresPerSecondSq(force, massInKg) {
+		var accelerationInMetresPerSecondSq = force["forceMagnitudeN"] / massInKg;
+		return accelerationInMetresPerSecondSq;
+	},
+
+	setAccelerationFigures(accelerationInMetresPerSecondSq, requiredDistanceUnit, requiredFirstTimeUnit, requiredSecondTimeUnit) {
+		var requiredAcceleration = accelerationInMetresPerSecondSq / this.distanceConversions[requiredDistanceUnit] * this.timeConversions[requiredFirstTimeUnit] * this.timeConversions[requiredSecondTimeUnit];
+		return requiredAcceleration;
 	}
 
 }
@@ -264,6 +291,11 @@ var handlers = {
 		view.displayEverything();
 
 
+	},
+
+	deleteForce: function(forceNumber) {
+		forceList.forces.splice(forceNumber, 1);
+		view.displayEverything();
 	}
 }
 
@@ -324,6 +356,7 @@ var view = {
 		}
 	},
 
+
 	setForceFigures: function(forceMagnitudeN, requiredForceUnit)  {
 		
 		var forceToDisplay = forceMagnitudeN / (forceList.forceConversions[requiredForceUnit]);
@@ -335,7 +368,12 @@ var view = {
 		return angleToDisplay;
 	},
 
-	generateAngleDescription: function(angleInDegrees, requiredAngleUnit, angleRelative, forceDirection, components) {
+	generateAngleDescription: function(force, requiredAngleUnit) {
+
+		var angleInDegrees = force["angleInDegrees"];
+		var angleRelative = force["angleRelative"];
+		var forceDirection = force["forceDirection"];
+		var components = force["components"];
 
 		var angleToDisplay = this.setAngleFigures(angleInDegrees, requiredAngleUnit);
 		var prettifiedDirection = this.prettifyDirection(forceDirection, components);
@@ -352,14 +390,12 @@ var view = {
 			var requiredAngleUnit = document.getElementById("required-angle-unit").value;
 
 			var forceMagnitudeN = forceToTextify["forceMagnitudeN"];
-			var angleInDegrees = forceToTextify["angleInDegrees"];
-			var angleRelative = forceToTextify["angleRelative"];
 			var forceDirection = forceToTextify["forceDirection"];
 			var components = forceToTextify["components"];
 			var forceDirectionToDisplay = this.prettifyDirection(forceDirection, components);
 			var forceToDisplay = this.setForceFigures(forceMagnitudeN, requiredForceUnit);
 			
-			var angleDescription = this.generateAngleDescription(angleInDegrees, requiredAngleUnit, angleRelative, forceDirection, components);
+			var angleDescription = this.generateAngleDescription(forceToTextify, requiredAngleUnit);
 			
 			var forceDisplayText = forceName + " has magnitude " + forceToDisplay.toFixed(1) + " " + this.prettifyForceUnit(requiredForceUnit) + " and acts " + forceDirectionToDisplay + angleDescription;
 
@@ -367,18 +403,11 @@ var view = {
 
 	},
 
-		displayOpposite: function() {
-		var oppositeForce = forceList.calculateForceFromComponents(forceList.calculateOppositeComponents((forceList.calculateNetComponents(forceList.forces))));
-		var forceDisplayText = this.generateForceDisplayText(oppositeForce, "The force required to put the partice in equilibrium");
-
-		var oppositeDisplayPlace = document.getElementById("opposite-display-place");
-		oppositeDisplayPlace.innerHTML = "";
-		var forceToDisplay = document.createElement("p");
-		forceToDisplay.className = "opposing-force";
-		forceToDisplay.textContent = forceDisplayText;
-		oppositeDisplayPlace.appendChild(forceToDisplay);
-
-
+	createDeleteButton: function() {
+		var deleteButton = document.createElement("button");
+		deleteButton.textContent = "X";
+		deleteButton.className = "delete-button";
+		return deleteButton;
 	},
 
 	displayForces: function() {
@@ -391,8 +420,11 @@ var view = {
 			var forceDisplayText = this.generateForceDisplayText(forceList.forces[x], forceName);
 
 			var forceToDisplay = document.createElement("li");
+
+			forceToDisplay.id = x;
 			forceToDisplay.className = "displayed-force";
 			forceToDisplay.textContent = forceDisplayText;
+			forceToDisplay.appendChild(this.createDeleteButton());
 			forceDisplayList.appendChild(forceToDisplay);
 
 		}
@@ -400,15 +432,31 @@ var view = {
 		
 	},
 
+		displayOpposite: function() {
+		var oppositeForce = forceList.calculateForceFromComponents(forceList.calculateOppositeComponents((forceList.calculateNetComponents(forceList.forces))));
+		var forceDisplayText = this.generateForceDisplayText(oppositeForce, "The force required to put the partice in equilibrium");
+
+		var oppositeDisplayPlace = document.getElementById("opposite-display-place");
+		oppositeDisplayPlace.innerHTML = "";
+		if (forceList.forces.length > 0 ) {
+		var forceToDisplay = document.createElement("p");
+		forceToDisplay.className = "opposing-force";
+		forceToDisplay.textContent = forceDisplayText;
+		oppositeDisplayPlace.appendChild(forceToDisplay);
+
+		}
+	},
+
 	displayComponents: function() {
 
+		var requiredForceUnit = document.getElementById("required-force-unit").value;
 		var componentDisplayList = document.querySelector("#component-display-list");
 		componentDisplayList.innerHTML = "";
 
 		for (var x = 0; x < forceList.forces.length; x++) {
 			var components = forceList.forces[x]["components"];
-			var componentI = components["i"];
-			var componentJ = components["j"];
+			var componentI = this.setForceFigures(components["i"], requiredForceUnit);
+			var componentJ = this.setForceFigures(components["j"], requiredForceUnit);
 			var componentsToDisplay = document.createElement("li");
 			componentsToDisplay.className = "components-display-individual";
 			componentsToDisplay.innerHTML = "Force " + (x + 1) + " has components <span class='component-numbers'>" + componentI.toFixed(1) + "</span> <span class='unit-vector'>i</span> and <span class='component-numbers'>" + componentJ.toFixed(1) + "</span> <span class='unit-vector'>j</span>";
@@ -418,10 +466,53 @@ var view = {
 
 	},
 
+	displayAcceleration: function() {
+		var netForce = forceList.calculateForceFromComponents(forceList.calculateNetComponents(forceList.forces));
+		var accelerationDisplayPlace = document.getElementById("acceleration-display-place");
+
+		var requiredDistanceUnit = document.getElementById("required-distance").value;
+		var requiredTimeUnitOne = document.getElementById("required-time-one").value;
+		var requiredTimeUnitTwo = document.getElementById("required-time-two").value;
+		var massInputNumber = document.getElementById("mass-input-number").value;
+		var massInputUnit = document.getElementById("mass-input-unit").value;
+		var requiredAngleUnit = document.getElementById("required-angle-unit").value;
+		accelerationDisplayPlace.innerHTML = "";
+		
+		if (forceList.forces.length > 0 ) {
+		var accelerationInMetresPerSecondSq = acceleration.calculateAccelerationMetresPerSecondSq(netForce, acceleration.convertMassToKg(massInputNumber, massInputUnit));
+		var accelerationMagToDisplay = acceleration.setAccelerationFigures(accelerationInMetresPerSecondSq, requiredDistanceUnit, requiredTimeUnitOne, requiredTimeUnitTwo);
+		var angleDescription = this.generateAngleDescription(netForce, requiredAngleUnit);
+		var accelerationDirectionToDisplay = this.prettifyDirection(netForce["forceDirection"], netForce["components"]);
+
+		var accelerationDisplayText = "The acceleration of the particle has magnitude " + accelerationMagToDisplay.toFixed(1) + " " + requiredDistanceUnit + " per " + requiredTimeUnitOne + " per " + requiredTimeUnitTwo + " and accelerates " + accelerationDirectionToDisplay + angleDescription;
+
+				var accelerationToDisplay = document.createElement("p");
+				accelerationToDisplay.className = "opposing-force";
+				accelerationToDisplay.textContent = accelerationDisplayText;
+				accelerationDisplayPlace.appendChild(accelerationToDisplay);
+		}
+	},
+
 	displayEverything: function() {
 		this.displayForces();
 		this.displayOpposite();
 		this.displayComponents();
+		this.displayAcceleration();
 	}
 
 }
+
+document.addEventListener("DOMContentLoaded", function(event) { 
+
+var forceDisp = document.querySelector("#force-display-list");
+
+forceDisp.addEventListener("click", function(event) {
+
+	var elementClicked = event.target;
+	if (elementClicked.className === "delete-button") {
+		handlers.deleteForce(event.target.parentNode.id);
+	}
+});
+
+
+});
