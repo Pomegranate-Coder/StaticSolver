@@ -217,11 +217,19 @@ var forceList = {
 
 		}
 
+		var angleToReturn = angleFromHorizontalDeg;
+		var angleRelativeToReturn ="Horizontal";
+
+		if (angleToReturn > 45) {
+			angleToReturn = 90 - angleToReturn;
+			angleRelativeToReturn = "Vertical";
+		}
+
 		return {
 			"forceMagnitudeN": forceMagnitudeN,
 			"forceDirection": forceDirection,
-			"angleInDegrees": angleFromHorizontalDeg,
-			"angleRelative": "Horizontal",
+			"angleInDegrees": angleToReturn,
+			"angleRelative": angleRelativeToReturn,
 			"components": components,
 			"degreesClockwiseFromRight": degreesClockwiseFromRight
 		}
@@ -498,7 +506,61 @@ var view = {
 		this.displayOpposite();
 		this.displayComponents();
 		this.displayAcceleration();
+
+		diagram.drawForces();
+
 	}
+
+}
+
+diagram = {
+	
+	//get biggest component coordinate
+	//every component has a co-ordinate of comp/longestComp * 175
+
+	//plot line, where every x1 and y1 = 200, and every x2 and y2 = 200 + the result from above
+
+	getBiggestComponent: function() {
+		var biggestComponent = 0;
+
+		forceList.forces.forEach(function(force) {
+			if (Math.abs((force["components"])["i"]) > Math.abs(biggestComponent)) {
+				biggestComponent = force["components"]["i"];
+			}
+
+			if (Math.abs((force["components"])["j"]) > Math.abs(biggestComponent)) {
+				biggestComponent = force["components"]["j"];
+			}
+
+		});
+
+		return biggestComponent;
+	},
+
+	generateLineSVG: function(forceToDisplay) {
+		biggestComponent = this.getBiggestComponent();
+
+		var x2 = Math.round(((forceToDisplay["components"]["i"] / Math.abs(biggestComponent)) * 175) + 200);
+		console.log(x2);
+		var y2 = Math.round(((forceToDisplay["components"]["j"] / Math.abs(biggestComponent)) * -175) + 200);
+		console.log(y2);
+		console.log("--------------");
+		return "<line x1='200' y1='200' x2='" + x2 + "' y2='" + y2 +"' stroke-width='2' stroke='red' />";
+	},
+
+	drawForces: function() {
+
+		var diagramDisplayPlace = document.querySelector("#diagram-display-place");
+		
+		fullSVG = "<svg width='400' height='400'><line x1='0' y1='200' x2='400' y2='200' stroke-width='1' stroke='grey'/> <line x1='200' y1='0' x2='200' y2='400' stroke-width='1' stroke='grey'/> <circle cx='200' cy='200' r='3'/>";
+
+		for (var x = 0; x < forceList.forces.length; x++) {
+			var lineToDraw = this.generateLineSVG(forceList.forces[x]);
+			fullSVG += lineToDraw;
+		}
+		fullSVG += '</svg>'
+		diagramDisplayPlace.innerHTML = fullSVG;
+	} 
 
 }
 
@@ -513,6 +575,7 @@ forceDisp.addEventListener("click", function(event) {
 		handlers.deleteForce(event.target.parentNode.id);
 	}
 });
+
 
 
 });
